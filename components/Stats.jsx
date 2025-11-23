@@ -2,7 +2,7 @@ import { Star } from "lucide-react";
 
 export default function Stats() {
     return (
-        <section className="px-4 py-16 sm:px-6 lg:px-8 bg-white">
+        <section className="px-4 py-10 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:justify-between md:items-center gap-10 md:gap-0">
                 {/* Left Title */}
                 <div className="text-center md:text-left">
@@ -25,8 +25,8 @@ export default function Stats() {
                                 />
                             ))}
                         </div>
-                        <p className="text-foreground text-xl sm:text-2xl font-medium text-center">
-                            4.9/5_rating
+                        <p className="text-foreground text-xl sm:text-2xl font-medium text-center whitespace-nowrap">
+                            4.9/5 rating
                         </p>
                     </div>
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Hero() {
     return (
-        <section className="relative overflow-hidden bg-background px-4 py-20 sm:px-6 lg:px-8">
+        <section className="relative overflow-hidden bg-background px-4 py-10 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-7xl">
                 <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
                     {/* Left content */}

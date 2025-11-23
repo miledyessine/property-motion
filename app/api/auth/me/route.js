@@ -15,8 +15,11 @@ export async function GET() {
         const db = readUsers();
         const user = db.users.find((u) => u.id === id);
 
-        console.log("Authenticated user:", user);
-        return NextResponse.json({ user: user || null });
+        if (!user) return NextResponse.json({ user: null });
+
+        const { password, ...safeUser } = user;
+
+        return NextResponse.json({ user: safeUser });
     } catch (err) {
         console.log("Token verification failed:", err);
         return NextResponse.json({ user: null });
