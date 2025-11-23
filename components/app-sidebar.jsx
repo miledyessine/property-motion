@@ -139,10 +139,14 @@ const navItems = [
 export function AppSidebar({ ...props }) {
     const pathname = usePathname();
 
+    async function logout() {
+        await fetch("/api/auth/logout", { method: "POST" });
+        window.location.href = "/login";
+    }
     return (
-        <Sidebar collapsible="icon" {...props} >
+        <Sidebar collapsible="icon" {...props}>
             {/* Header */}
-            <SidebarHeader className="pt-4 pb-6 px-6">
+            <SidebarHeader className="pt-4 pb-6 px-6 ">
                 <Image
                     src="/Logo_white.svg"
                     alt="Property Motion Logo"
@@ -159,7 +163,7 @@ export function AppSidebar({ ...props }) {
                         <SidebarMenu>
                             {navItems.map((item) => {
                                 const Icon = item.icon;
-                                const isActive = pathname === item.href;
+                                const isActive = pathname.startsWith(item.href);
                                 return (
                                     <SidebarMenuItem key={item.href}>
                                         <SidebarMenuButton
@@ -199,7 +203,10 @@ export function AppSidebar({ ...props }) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton className="text-white text-md hover:text-red-400 hover:bg-red-900/20">
+                        <SidebarMenuButton
+                            className="text-white cursor-pointer text-md hover:text-red-400 hover:bg-red-900/20"
+                            onClick={() => logout()}
+                        >
                             <LogOut className="w-6 h-6" />
                             <span>Log out</span>
                         </SidebarMenuButton>
