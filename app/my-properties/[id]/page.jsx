@@ -1,51 +1,86 @@
 "use client";
+
 import DashboardLayout from "@/components/layouts/dashboard-layout";
 import { Card } from "@/components/ui/card";
 import { EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import PropertyCharts from "@/components/my-properties/PropertyCharts";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NewPropertyCard } from "@/components/my-properties/NewPropertyCard";
 import AddPropertyForm from "@/components/my-properties/AddPropertyForm";
+import { useParams, useRouter } from "next/navigation";
 
-export default function PropertyPage({ params }) {
-    // unwrap params (may be a Promise in newer Next.js versions)
-    const unwrappedParams = React.use(params);
+export default function PropertyPage() {
+    
+        const router = useRouter();
+    const params = useParams();
+    const propertyId = params?.id;
 
-    // static sample data for now
-    const property = {
-        id: unwrappedParams?.id ?? "12",
-        title: "Test",
-        address: "19 College Parade Salusbury Road, London, UK",
-        ref: "12",
-        image: "/images/properties/property1.png",
-        propertyType: "Penthouse",
-        value: "£ 800",
-        listingType: "Let",
-        bedrooms: 2,
-        bathrooms: 1,
-        floors: 1,
-        dimension: "100 m²",
-        restOf: "Garden",
-        accessThrough: "Concierge/Porter",
-        marketing: 20,
-        compliance: 20,
-    };
-
+    const [property, setProperty] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
+
+    // Fetch property by id from API
+    useEffect(() => {
+        async function fetchProperty() {
+            try {
+                const res = await fetch(`/api/properties?id=${propertyId}`);
+                if (!res.ok) throw new Error("Property not found");
+
+                const data = await res.json();
+
+                // Map API fields to your UI props
+                const mapped = {
+                    ...data,
+                    title: data.propertyName,
+                    beds: data.bedrooms,
+                    baths: data.bathrooms,
+                    area: data.dimension,
+                    marketing: data.marketing ?? 0,
+                    compliance: data.compliance ?? 0,
+                    image: data.image ?? "/images/properties/property1.png",
+                };
+
+                setProperty(mapped);
+            } catch (err) {
+                console.error(err);
+                setProperty(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (propertyId) fetchProperty();
+    }, [propertyId]);
 
     function handleAddClick() {
         setShowAddForm(true);
     }
 
-    function handleCancel() {
-        setShowAddForm(false);
-    }
-
     function handleSubmit(form) {
         console.log("Adding property", form);
+
         setShowAddForm(false);
+        if (form.id) {
+            router.push(`/my-properties/${form.id}`);
+        } else {
+            router.push("/my-properties");
+        }
     }
+
+    if (loading)
+        return (
+            <DashboardLayout>
+                <div className="p-4">Loading property...</div>
+            </DashboardLayout>
+        );
+
+    if (!property)
+        return (
+            <DashboardLayout>
+                <div className="p-4">Property not found.</div>
+            </DashboardLayout>
+        );
 
     return (
         <DashboardLayout>
@@ -57,9 +92,9 @@ export default function PropertyPage({ params }) {
                         place.
                     </p>
                 </div>
+
                 {showAddForm ? (
                     <AddPropertyForm
-                        onCancel={handleCancel}
                         onSubmit={handleSubmit}
                     />
                 ) : (
@@ -92,7 +127,8 @@ export default function PropertyPage({ params }) {
                                                 {property.address}
                                             </div>
                                             <div className="text-md text-muted-foreground mt-2">
-                                                Ref: {property.ref}
+                                                Ref:{" "}
+                                                {property.reference || "N/A"}
                                             </div>
                                         </div>
                                         <EllipsisVertical className="w-6 h-6 text-muted-foreground cursor-pointer" />
@@ -123,7 +159,7 @@ export default function PropertyPage({ params }) {
                                             <span className="font-medium">
                                                 Dimension:
                                             </span>{" "}
-                                            {property.dimension}
+                                            {property.dimension} m²
                                         </div>
                                     </div>
                                     <div>
@@ -143,7 +179,19 @@ export default function PropertyPage({ params }) {
                                             <span className="font-medium">
                                                 Rest of:
                                             </span>{" "}
-                                            {property.restOf}
+                                            {[
+                                                property.parking
+                                                    ? "Parking"
+                                                    : null,
+                                                property.garden
+                                                    ? "Garden"
+                                                    : null,
+                                                property.garage
+                                                    ? "Garage"
+                                                    : null,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(", ") || "None"}
                                         </div>
                                     </div>
                                     <div>
@@ -163,7 +211,7 @@ export default function PropertyPage({ params }) {
                                             <span className="font-medium">
                                                 Access through:
                                             </span>{" "}
-                                            {property.accessThrough}
+                                            {property.access}
                                         </div>
                                     </div>
                                 </div>

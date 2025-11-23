@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "../ui/label";
-import { Upload } from "lucide-react";
+import { ImagePlus, Upload } from "lucide-react";
 import { Input } from "../ui/input";
 import {
     Select,
@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "../ui/select";
 
-export function AddPropertyForm({ onCancel, onSubmit }) {
+export function AddPropertyForm({ onSubmit }) {
     const [formData, setFormData] = useState({
         propertyName: "",
         address: "",
@@ -74,10 +74,42 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
+
+        const payload = { ...formData };
+
+        // Convert file to base64 (optional)
+        if (imageFile) {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                payload.image = reader.result;
+                await submitProperty(payload);
+            };
+            reader.readAsDataURL(imageFile);
+        } else {
+            await submitProperty(payload);
+        }
     };
+
+    async function submitProperty(payload) {
+        try {
+            const res = await fetch("/api/properties", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) throw new Error("Failed to add property");
+
+            const newProperty = await res.json();
+            console.log("Property added:", newProperty);
+            onSubmit?.(newProperty);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     return (
         <Card>
             <CardHeader>
@@ -93,7 +125,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                         <div className="flex gap-4">
                             {/* Square upload area */}
                             <label className="w-32 h-32 shrink-0">
-                                <div className="w-full h-full border-2 border-dashed border-border rounded-lg p-4 text-center hover:bg-muted/50 transition cursor-pointer flex flex-col items-center justify-center bg-background">
+                                <div className="w-full h-full border-2 border-dashed border-primary rounded-lg p-4 text-center hover:bg-muted/50 transition cursor-pointer flex flex-col items-center justify-center bg-background">
                                     {imagePreview ? (
                                         <div className="relative w-full h-full">
                                             <Image
@@ -108,9 +140,9 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                         </div>
                                     ) : (
                                         <>
-                                            <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                                            <ImagePlus className="h-6 w-6 text-muted-foreground mb-3" />
                                             <p className="text-xs text-muted-foreground">
-                                                Upload
+                                                Upload Image
                                             </p>
                                         </>
                                     )}
@@ -151,7 +183,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                             placeholder="Enter property name"
                             value={formData.propertyName}
                             onChange={handleInputChange}
-                            className="h-12"
+                            className="h-12 border-primary"
                         />
                     </div>
 
@@ -166,14 +198,14 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="Address"
                                 value={formData.address}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Input
                                 name="city"
                                 placeholder="City"
                                 value={formData.city}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -182,14 +214,14 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="Country"
                                 value={formData.country}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Input
                                 name="postCode"
                                 placeholder="Post Code"
                                 value={formData.postCode}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                         </div>
                     </div>
@@ -205,16 +237,16 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="Property reference"
                                 value={formData.reference}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Select
-                                className="h-16"
+                                className="h-12"
                                 value={formData.value}
                                 onValueChange={(val) =>
                                     handleSelectChange("value", val)
                                 }
                             >
-                                <SelectTrigger className="h-16 w-full">
+                                <SelectTrigger className="h-12 border-primary w-full">
                                     <SelectValue placeholder="£ Property value" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -241,7 +273,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                     handleSelectChange("propertyType", val)
                                 }
                             >
-                                <SelectTrigger className="h-12 w-full">
+                                <SelectTrigger className="h-12 border-primary w-full">
                                     <SelectValue placeholder="Property Type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -263,17 +295,17 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                     handleSelectChange("access", val)
                                 }
                             >
-                                <SelectTrigger className="h-12 w-full">
+                                <SelectTrigger className="h-12 border-primary w-full">
                                     <SelectValue placeholder="Access property" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="unrestricted">
-                                        Unrestricted
+                                    <SelectItem value="concierge">
+                                        Concierge / Porter
                                     </SelectItem>
-                                    <SelectItem value="restricted">
-                                        Restricted
+                                    <SelectItem value="key">
+                                        Key / Unrestricted
                                     </SelectItem>
-                                    <SelectItem value="by-appointment">
+                                    <SelectItem value="appointment">
                                         By Appointment
                                     </SelectItem>
                                 </SelectContent>
@@ -292,7 +324,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 onClick={() =>
                                     handleSelectChange("listingType", "sale")
                                 }
-                                className="h-12"
+                                className="h-12 border-primary"
                             >
                                 <img
                                     src="/icons/Tag.svg"
@@ -311,7 +343,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 onClick={() =>
                                     handleSelectChange("listingType", "let")
                                 }
-                                className="h-12"
+                                className="h-12 border-primary"
                             >
                                 <img
                                     src="/icons/Flag.svg"
@@ -331,7 +363,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="Dimension"
                                 value={formData.dimension}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Input
                                 name="bedrooms"
@@ -339,7 +371,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="No. bedrooms"
                                 value={formData.bedrooms}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Input
                                 name="bathrooms"
@@ -347,7 +379,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="No. bathrooms"
                                 value={formData.bathrooms}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                             <Input
                                 name="floors"
@@ -355,7 +387,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                 placeholder="No. floors"
                                 value={formData.floors}
                                 onChange={handleInputChange}
-                                className="h-12"
+                                className="h-12 border-primary"
                             />
                         </div>
 
@@ -367,7 +399,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                     formData.parking ? "default" : "outline"
                                 }
                                 onClick={() => handleToggle("parking")}
-                                className="h-12"
+                                className="h-12 border-primary"
                             >
                                 <img
                                     src="/icons/Parking.svg"
@@ -382,7 +414,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                     formData.garden ? "default" : "outline"
                                 }
                                 onClick={() => handleToggle("garden")}
-                                className="h-12"
+                                className="h-12 border-primary"
                             >
                                 <img
                                     src="/icons/garden.svg"
@@ -397,7 +429,7 @@ export function AddPropertyForm({ onCancel, onSubmit }) {
                                     formData.garage ? "default" : "outline"
                                 }
                                 onClick={() => handleToggle("garage")}
-                                className="h-12"
+                                className="h-12 border-primary"
                             >
                                 <img
                                     src="/icons/garage.svg"

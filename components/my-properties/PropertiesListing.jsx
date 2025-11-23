@@ -1,50 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutGrid, List } from "lucide-react";
 import PropertiesListView from "./PropertiesListView";
 import PropertiesCardView from "./PropertiesCardView";
 import { Button } from "@/components/ui/button";
 import { Card } from "../ui/card";
 
-export function PropertiesListing({ items }) {
+export function PropertiesListing() {
     const [view, setView] = useState("cards");
+    const [properties, setProperties] = useState([]);
 
-    const sample = items ?? [
-        {
-            id: 1,
-            image:"/images/properties/property1.png",
-            title: "Test",
-            address: "19 College Parade Salusbury Road",
-            beds: 4,
-            baths: 2,
-            area: "100 m²",
-            marketing: 20,
-            compliance: 20,
-        },
-        {
-            id: 2,
-            image:"/images/properties/property2.png",
-            title: "Test",
-            address: "19 College Parade Salusbury Road",
-            beds: 4,
-            baths: 2,
-            area: "100 m²",
-            marketing: 0,
-            compliance: 0,
-        },
-        {
-            id: 3,
-            image:"/images/properties/property3.png",
-            title: "Test",
-            address: "19 College Parade Salusbury Road",
-            beds: 4,
-            baths: 2,
-            area: "100 m²",
-            marketing: 0,
-            compliance: 0,
-        },
-    ];
+    useEffect(() => {
+        async function fetchProperties() {
+            try {
+                const res = await fetch("/api/properties");
+                if (!res.ok) throw new Error("Failed to fetch properties");
+                const data = await res.json();
+                setProperties(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fetchProperties();
+    }, []);
 
     return (
         <Card className="p-6">
@@ -71,9 +51,9 @@ export function PropertiesListing({ items }) {
             </div>
 
             {view === "cards" ? (
-                <PropertiesCardView items={sample} />
+                <PropertiesCardView items={properties} />
             ) : (
-                <PropertiesListView items={sample} />
+                <PropertiesListView items={properties} />
             )}
         </Card>
     );
