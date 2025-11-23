@@ -417,7 +417,7 @@ export function AddPropertyForm({ onSubmit }) {
                                 className="h-12 border-primary"
                             >
                                 <img
-                                    src="/icons/garden.svg"
+                                    src="/icons/Garden.svg"
                                     alt="Garden"
                                     className="h-4 w-4"
                                 />
@@ -432,7 +432,7 @@ export function AddPropertyForm({ onSubmit }) {
                                 className="h-12 border-primary"
                             >
                                 <img
-                                    src="/icons/garage.svg"
+                                    src="/icons/Garage.svg"
                                     alt="Garage"
                                     className="h-4 w-4"
                                 />
