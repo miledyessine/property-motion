@@ -30,8 +30,41 @@ export default function SignupForm() {
             alert("Passwords do not match");
             return;
         }
+        signup(
+            formData.email,
+            formData.password,
+            formData.businessName,
+            formData.officeAddress,
+            formData.postCode
+        );
         console.log(formData);
     };
+    async function signup(
+        email,
+        password,
+        businessName,
+        officeAddress,
+        postCode
+    ) {
+        const res = await fetch("/api/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({
+                email,
+                password,
+                businessName,
+                officeAddress,
+                postCode,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        window.location.href = "/login";
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -46,7 +79,7 @@ export default function SignupForm() {
                     value={formData.businessName}
                     onChange={handleChange}
                     required
-                    className="bg-input border-border"
+                    className="border-primary"
                 />
             </div>
 
@@ -61,7 +94,7 @@ export default function SignupForm() {
                     value={formData.officeAddress}
                     onChange={handleChange}
                     required
-                    className="bg-input border-border"
+                    className="border-primary"
                 />
             </div>
 
@@ -76,7 +109,7 @@ export default function SignupForm() {
                     value={formData.postCode}
                     onChange={handleChange}
                     required
-                    className="bg-input border-border"
+                    className="border-primary"
                 />
             </div>
 
@@ -92,7 +125,7 @@ export default function SignupForm() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="bg-input border-border"
+                    className="border-primary"
                 />
             </div>
 
@@ -109,7 +142,7 @@ export default function SignupForm() {
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        className="bg-input border-border pr-10"
+                        className="border-primary pr-10"
                     />
                     <button
                         type="button"
@@ -146,7 +179,7 @@ export default function SignupForm() {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
-                        className="bg-input border-border pr-10"
+                        className="border-primary pr-10"
                     />
                     <button
                         type="button"
@@ -177,7 +210,7 @@ export default function SignupForm() {
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">
-                By signing up to create an account I accept Company's{" "}
+                By signing up to create an account I accept Company's<br/>
                 <Link href="#" className=" underline hover:text-primary/80">
                     Terms of use & Privacy Policy
                 </Link>

@@ -14,9 +14,20 @@ export default function LoginForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle login logic
-        console.log({ email, password });
+        login(email, password);
     };
+    
+    async function login(email, password) {
+        const res = await fetch("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        window.location.href = "/dashboard";
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -31,7 +42,7 @@ export default function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="bg-input border-border"
+                    className="border-primary"
                 />
             </div>
 
@@ -47,15 +58,23 @@ export default function LoginForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="bg-input border-border pr-10"
+                        className="border-primary pr-10"
                     />
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
                     >
-                        <EyeOff className={`w-5 h-5 ${showPassword ? "hidden" : "block"}`} />
-                        <Eye className={`w-5 h-5 ${showPassword ? "block" : "hidden"}`} />
+                        <EyeOff
+                            className={`w-5 h-5 ${
+                                showPassword ? "hidden" : "block"
+                            }`}
+                        />
+                        <Eye
+                            className={`w-5 h-5 ${
+                                showPassword ? "block" : "hidden"
+                            }`}
+                        />
                     </button>
                 </div>
             </div>
